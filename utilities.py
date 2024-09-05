@@ -40,7 +40,8 @@ class Listener:
         model = WhisperModel("small", device="cpu")
         segments, _ = model.transcribe(audio_path, language="de", word_timestamps=True)
         transcription = " ".join([segment.text for segment in segments])
-        my_text.value = transcription
+        if my_text is not None:
+            my_text.setText(transcription)
     
     def reset_transcription(self, b, text_output):
         """Resets the transcription."""
