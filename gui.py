@@ -5,6 +5,7 @@ class QtWindow(QtWidgets.QWidget):
         super().__init__()
         self.setWindowTitle('GUI Text Output')
         self.showFullScreen()
+        self.setStyleSheet("background-color: black;")
         
         # Create label
         self.label = QtWidgets.QLabel('Your Text Here', self)
