@@ -4,42 +4,44 @@ import queue
 from scipy.io.wavfile import write
 from faster_whisper import WhisperModel
 
-audio_queue = queue.Queue()
-sample_rate = 16000
-
-def audio_callback(indata, frames, time, status):
-    """This function is called by sounddevice during audio recording."""
-    audio_queue.put(indata.copy())
-
-def start_recording(b=None):
-    """Starts audio recording."""
-    audio_queue.queue.clear()  # Clears the queue before recording
-    stream.start()
-
-def interrupt_recording(b=None, audio_data=[], my_text=None):
-    """Stops audio recording and starts transcription."""
-    stream.stop()
-
-    if len(audio_data) > 20:
-        audio_data = audio_data[-20:]
-
-    while not audio_queue.empty():
-        audio_data.append(audio_queue.get())
-    start_recording()
-    if audio_data:
-        audio_np = np.concatenate(audio_data, axis=0)
-        write('output.wav', sample_rate, audio_np.astype(np.int16))  # Writes WAV file
-        transcribe_audio('output.wav', my_text)
-
-def transcribe_audio(audio_path, my_text):
-    """Transcribes the recorded audio."""
-    model = WhisperModel("small", device="cpu")
-    segments, _ = model.transcribe(audio_path, language="de", word_timestamps=True)
-    transcription = " ".join([segment.text for segment in segments])
-    my_text.value = transcription
+class Listener:
+    def __init__(self):
+        self.audio_queue = queue.Queue()
+        self.sample_rate = 16000
+        self.audio_data = []
+        self.stream = sd.InputStream(callback=self.audio_callback, samplerate=self.sample_rate, channels=1, dtype='int16')
     
-def reset_transcription(b, text_output):
-    """Resets the transcription."""
-    text_output.value = ""
+    def audio_callback(self, indata, frames, time, status):
+        """This function is called by sounddevice during audio recording."""
+        self.audio_queue.put(indata.copy())
+    
+    def start_recording(self, b=None):
+        """Starts audio recording."""
+        self.audio_queue.queue.clear()  # Clears the queue before recording
+        self.stream.start()
+    
+    def interrupt_recording(self, b=None, my_text=None):
+        """Stops audio recording and starts transcription."""
+        self.stream.stop()
+        
+        if len(self.audio_data) > 20:
+            self.audio_data = self.audio_data[-20:]
 
-stream = sd.InputStream(callback=audio_callback, samplerate=sample_rate, channels=1, dtype='int16')
+        while not self.audio_queue.empty():
+            self.audio_data.append(self.audio_queue.get())
+        self.start_recording()
+        if self.audio_data:
+            audio_np = np.concatenate(self.audio_data, axis=0)
+            write('output.wav', self.sample_rate, audio_np.astype(np.int16))  # Writes WAV file
+            self.transcribe_audio('output.wav', my_text)
+    
+    def transcribe_audio(self, audio_path, my_text):
+        """Transcribes the recorded audio."""
+        model = WhisperModel("small", device="cpu")
+        segments, _ = model.transcribe(audio_path, language="de", word_timestamps=True)
+        transcription = " ".join([segment.text for segment in segments])
+        my_text.value = transcription
+    
+    def reset_transcription(self, b, text_output):
+        """Resets the transcription."""
+        text_output.value = ""
