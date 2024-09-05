@@ -10,7 +10,7 @@ class QtWindow(QtWidgets.QWidget):
         # Create label
         self.label = QtWidgets.QLabel('Your Text Here', self)
         self.label.setAlignment(QtCore.Qt.AlignBottom | QtCore.Qt.AlignCenter)
-        self.label.setStyleSheet("color: white; background-color: black")
+        self.label.setStyleSheet("color: white; background-color: black; font-size: 30px;")
         
         # Set layout
         layout = QtWidgets.QVBoxLayout()
