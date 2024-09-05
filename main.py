@@ -19,7 +19,7 @@ class TranscriptionApp(QtWidgets.QApplication):
         self.listener.start_recording()
 
     def update_transcription(self):
-        transcribed_text = self.listener.get_transcribed_text()
+        transcribed_text = self.listener.get_transcribed_text(audio_path=None)  # Pass correct argument
         self.window.label.setText(transcribed_text)
 
 if __name__ == '__main__':
