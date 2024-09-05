@@ -1,3 +1,5 @@
 /audio/test_wav.wav
 stt-venv
 .venv
+__pycache__
+
