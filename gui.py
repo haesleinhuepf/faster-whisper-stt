@@ -19,3 +19,6 @@ class QtWindow(QtWidgets.QWidget):
 
     def set_label_text(self, text):
         self.label.setText(text)
+
+    def update_label(self, text):
+        self.label.setText(text)
