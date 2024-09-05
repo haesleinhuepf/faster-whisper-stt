@@ -1,0 +1,6 @@
+faster-whisper
+sounddevice
+numpy==1.26.4
+scipy
+jupyter
+voila
