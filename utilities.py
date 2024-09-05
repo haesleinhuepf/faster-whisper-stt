@@ -10,6 +10,7 @@ class Listener:
         self.sample_rate = 16000
         self.audio_data = []
         self.stream = sd.InputStream(callback=self.audio_callback, samplerate=self.sample_rate, channels=1, dtype='int16')
+        self.model = WhisperModel("small", device="cpu")  # Initialize the model here
     
     def audio_callback(self, indata, frames, time, status):
         """This function is called by sounddevice during audio recording."""
@@ -37,8 +38,7 @@ class Listener:
     
     def transcribe_audio(self, audio_path, my_text):
         """Transcribes the recorded audio."""
-        model = WhisperModel("small", device="cpu")
-        segments, _ = model.transcribe(audio_path, language="de", word_timestamps=True)
+        segments, _ = self.model.transcribe(audio_path, language="de", word_timestamps=True)
         transcription = " ".join([segment.text for segment in segments])
         if my_text is not None:
             my_text.setText(transcription)
@@ -46,3 +46,9 @@ class Listener:
     def reset_transcription(self, b, text_output):
         """Resets the transcription."""
         text_output.value = ""
+
+    def get_transcribed_text(self, audio_path):
+        """Gets the transcribed text from the audio file."""
+        segments, _ = self.model.transcribe(audio_path, language="de", word_timestamps=True)
+        transcription = " ".join([segment.text for segment in segments])
+        return transcription
